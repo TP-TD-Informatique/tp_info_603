@@ -275,3 +275,98 @@ public:
 ```
 
 ### Type 2
+
+```c++
+#include <vector>
+#include <map>
+#include <climits>
+#include <algorithm>
+
+// Classe Noeud générique
+template<typename T>
+class Noeud {
+private:
+    // Valeur du noeud
+    T valeur;
+    // Les noeuds suivant
+    std::map<Noeud<T>, unsigned int> suivants;
+
+public:
+    T getValeur() const {
+        return valeur;
+    }
+
+    void setValeur(T pValeur) {
+        Noeud::valeur = pValeur;
+    }
+
+    std::map<Noeud<T>, unsigned int> &getSuivants() {
+        return suivants;
+    }
+};
+
+// Classe Graphe
+template<typename T>
+class Graphe {
+private:
+    // Les noeuds qui le compose
+    std::vector<Noeud<T>> noeuds;
+
+public:
+    std::vector<Noeud<T>> &getNoeuds() {
+        return noeuds;
+    }
+
+    // Renvoie le chemin entre debut et fin
+    std::vector<Noeud<T>> dijkstra(Noeud<T> debut, Noeud<T> fin) {
+        // Tableau des distances
+        std::map<Noeud<T>, unsigned int> distances;
+        // Tableau des prédecesseurs
+        std::map<Noeud<T>, Noeud<T>> pred;
+        // Sous-graphe
+        std::vector<Noeud<T>> q = noeuds;
+
+        // On initialise le tableau distance avec que des infini
+        for (auto noeud:noeuds) {
+            distances.emplace(noeud, UINT_MAX);
+        }
+        // La distance entre début et début vaut 0
+        distances[debut] = 0;
+
+        // Tant qu'il reste des noeuds non explorés
+        while (!q.empty()) {
+            // On récupère le noeud le plus proche en question de poids
+            unsigned int mini = UINT_MAX;
+            Noeud<T> n1;
+            for (auto noeud:q) {
+                if (distances[noeud] < mini) {
+                    mini = distances[noeud];
+                    n1 = noeud;
+                }
+            }
+            // On enlève ce noeud du sous-graphe
+            q.erase(std::find(q.begin(), q.end(), n1));
+
+            // Pour tout les noeuds suivant n1
+            for (auto n2:n1.getSuivants()) {
+                // Si la distance entre début et le n2 et plus grande que celle de début à n1 + le poids de l'arc
+                if (distances[n2.first] > distances[n1] + n2.second) {
+                    // On met à jour la distance
+                    distances[n2.first] = distances[n1] + n2.second;
+                    // Et on note ou on est passé
+                    pred[n2.first] = n1;
+                }
+            }
+        }
+
+        // On récupère le chemin de début à fin en remontant les prédécesseurs depuis fin
+        std::vector<Noeud<T>> resultat;
+        Noeud<T> n = fin;
+        while (n != debut) {
+            resultat.push_back(n);
+            n = pred[n];
+        }
+        return resultat;
+    }
+};
+```
