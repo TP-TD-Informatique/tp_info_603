@@ -140,4 +140,138 @@ find_sorte;
 
 ### Type 1
 
+```c++
+#include <vector>
+#include <map>
+#include <climits>
+#include <algorithm>
+
+// Classe Noeud générique
+template<typename T>
+class Noeud {
+private:
+    // Valeur du noeud
+    T valeur;
+
+public:
+    T getValeur() const {
+        return valeur;
+    }
+
+    void setValeur(T pValeur) {
+        valeur = pValeur;
+    }
+};
+
+// Classe Arc
+template<typename T>
+class Arc {
+private:
+    // L'arc va de ce noeud
+    Noeud<T> de;
+    // à celui là
+    Noeud<T> a;
+    // et possède un poids, une distance
+    unsigned int poids;
+
+public:
+    Noeud<T> getDe() const {
+        return de;
+    }
+
+    void setDe(Noeud<T> pDe) {
+        Arc::de = pDe;
+    }
+
+    Noeud<T> getA() const {
+        return a;
+    }
+
+    void setA(Noeud<T> pA) {
+        Arc::a = pA;
+    }
+
+    unsigned int getPoids() const {
+        return poids;
+    }
+
+    void setPoids(unsigned int pPoids) {
+        Arc::poids = pPoids;
+    }
+};
+
+// Classe Graphe
+template<typename T>
+class Graphe {
+private:
+    // Les noeuds qui le compose
+    std::vector<Noeud<T>> noeuds;
+    // Les arcs qui relient les noeuds
+    std::vector<Arc<T>> arcs;
+
+public:
+    std::vector<Noeud<T>> &getNoeuds() {
+        return noeuds;
+    }
+
+    std::vector<Arc<T>> &getArcs() {
+        return arcs;
+    }
+
+    // Renvoie le chemin enter debut et fin
+    std::vector<Noeud<T>> dijkstra(Noeud<T> debut, Noeud<T> fin) {
+        // Tableau des distances
+        std::map<Noeud<T>, unsigned int> distances;
+        // Tableau des prédecesseurs
+        std::map<Noeud<T>, Noeud<T>> pred;
+        // Sous-graphe
+        std::vector<Noeud<T>> q = noeuds;
+
+        // On initialise le tableau distance avec que des infini
+        for (auto noeud:noeuds) {
+            distances.emplace(noeud, UINT_MAX);
+        }
+        // La distance entre début et début vaut 0
+        distances[debut] = 0;
+
+        // Tant qu'il reste des noeuds non explorés
+        while (!q.empty()) {
+            // On récupère le noeud le plus proche en question de poids
+            unsigned int mini = UINT_MAX;
+            Noeud<T> n1;
+            for (auto noeud:q) {
+                if (distances[noeud] < mini) {
+                    mini = distances[noeud];
+                    n1 = noeud;
+                }
+            }
+            // On enlève ce noeud du sous-graphe
+            q.erase(std::find(q.begin(), q.end(), n1));
+
+            // Pour tout les noeuds suivant n1
+            for (Arc<T> arc:arcs) {
+                if (arc.getDe() == n1) {
+                    // Si la distance entre début et le n2 et plus grande que celle de début à n1 + le poids de l'arc
+                    if (distances[arc.getA()] > (distances[n1] + arc.getPoids())) {
+                        // On met à jour la distance
+                        distances[arc.getA()] = distances[n1] + arc.getPoids();
+                        // Et on note ou on est passé
+                        pred[arc.getA()] = n1;
+                    }
+                }
+            }
+        }
+
+        // On récupère le chemin de début à fin en remontant les prédécesseurs depuis fin
+        std::vector<Noeud<T>> resultat;
+        Noeud<T> n = fin;
+        while (n != debut) {
+            resultat.push_back(n);
+            n = pred[n];
+        }
+        return resultat;
+    }
+};
+```
+
 ### Type 2
