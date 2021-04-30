@@ -27,7 +27,7 @@ début
             l := l + 1;
             k := k - 1;
         finsi;
-        # 4  {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i]}
+        # 4 {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i]}
     fintantque;
     # 5 {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
     permuter(t[i], t[k])
