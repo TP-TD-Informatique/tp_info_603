@@ -1,4 +1,4 @@
-# TP1 : Sémantique axiomatique de la procédure partition
+﻿# TP1 : Sémantique axiomatique de la procédure partition
 
 ## Sémantique axiomatique
 
@@ -10,15 +10,15 @@ début
     permuter(t[i], median(t[i], t[j], t[(i + j) div 2]));
     l := i + 1;
     k := j;
-    # 1
+    # 1 {t[j] >= t[i] >= t[(i+j)/2] v t[j] <= t[i] <= t[(i+j)/2]}
     tantque l <= k faire
         tantque t[k] > t[i] et l <= k faire
-            # 2
+            # 2 {∀e ϵ [k + 1, j] ; t[e] > t[i]}
             k := k - 1;
         fintantque;
 
         tantque t[l] <= t[i] et l <= k faire
-            # 3
+            # 3 {∀e ϵ [l-1, j] ; t[e] <= t[i]}
             l := l + 1;
         fintantque;
 
@@ -27,11 +27,11 @@ début
             l := l + 1;
             k := k - 1;
         finsi;
-        # 4
+        # 4  {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i]}
     fintantque;
-    # 5
+    # 5 {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
     permuter(t[i], t[k])
-    # 6
+    # 6 {∀e ϵ [i, k] ; ∀a ϵ [k, j] ; t[e] <= t[k] ^ t[a] >= t[k]}
 fin;
 ```
 
