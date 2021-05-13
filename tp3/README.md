@@ -154,12 +154,16 @@ private:
     T valeur;
 
 public:
-    T getValeur() const {
-        return valeur;
+    Noeud() = default;
+
+    explicit Noeud(T valeur) : valeur(valeur) {}
+
+    Noeud(Noeud<T> const &noeud) {
+        valeur = noeud.valeur;
     }
 
-    void setValeur(T pValeur) {
-        valeur = pValeur;
+    T getValeur() const {
+        return valeur;
     }
 };
 
@@ -175,28 +179,18 @@ private:
     unsigned int poids;
 
 public:
+    Arc(const Noeud<T> &de, const Noeud<T> &a, unsigned int poids) : de(de), a(a), poids(poids) {}
+
     Noeud<T> getDe() const {
         return de;
-    }
-
-    void setDe(Noeud<T> pDe) {
-        Arc::de = pDe;
     }
 
     Noeud<T> getA() const {
         return a;
     }
 
-    void setA(Noeud<T> pA) {
-        Arc::a = pA;
-    }
-
     unsigned int getPoids() const {
         return poids;
-    }
-
-    void setPoids(unsigned int pPoids) {
-        Arc::poids = pPoids;
     }
 };
 
@@ -210,15 +204,28 @@ private:
     std::vector<Arc<T>> arcs;
 
 public:
-    std::vector<Noeud<T>> &getNoeuds() {
+    Graphe() {
+        noeuds = std::vector<Noeud<T>>();
+        arcs = std::vector<Arc<T>>();
+    }
+
+    std::vector<Noeud<T>> getNoeuds() {
         return noeuds;
     }
 
-    std::vector<Arc<T>> &getArcs() {
+    std::vector<Arc<T>> getArcs() {
         return arcs;
     }
 
-    // Renvoie le chemin enter debut et fin
+    void setNoeuds(const std::vector<Noeud<T>> &pNoeuds) {
+        Graphe::noeuds = pNoeuds;
+    }
+
+    void setArcs(const std::vector<Arc<T>> &pArcs) {
+        Graphe::arcs = pArcs;
+    }
+
+    // Renvoie le chemin entre debut et fin
     std::vector<Noeud<T>> dijkstra(Noeud<T> debut, Noeud<T> fin) {
         // Tableau des distances
         std::map<Noeud<T>, unsigned int> distances;
@@ -269,9 +276,48 @@ public:
             resultat.push_back(n);
             n = pred[n];
         }
+        resultat.push_back(debut);
+        std::reverse(resultat.begin(), resultat.end());
+
         return resultat;
     }
 };
+
+template<typename T>
+std::ostream &operator<<(std::ostream &flux, Noeud<T> n) {
+    flux << n.getValeur();
+    return flux;
+}
+
+template<typename T>
+bool operator==(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() == n2.getValeur();
+}
+
+template<typename T>
+bool operator!=(Noeud<T> n1, Noeud<T> n2) {
+    return !(n1 == n2);
+}
+
+template<typename T>
+bool operator<(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() < n2.getValeur();
+}
+
+template<typename T>
+bool operator>(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() > n2.getValeur();
+}
+
+template<typename T>
+bool operator<=(Noeud<T> n1, Noeud<T> n2) {
+    return (n1 == n2) || (n1 < n2);
+}
+
+template<typename T>
+bool operator>=(Noeud<T> n1, Noeud<T> n2) {
+    return (n1 == n2) || (n1 > n2);
+}
 ```
 
 ### Type 2
@@ -292,16 +338,27 @@ private:
     std::map<Noeud<T>, unsigned int> suivants;
 
 public:
+    Noeud() = default;
+
+    explicit Noeud(T valeur) : valeur(valeur) {}
+
+    Noeud(T valeur, const std::map<Noeud<T>, unsigned int> &suivants) : valeur(valeur), suivants(suivants) {}
+
+    Noeud(Noeud<T> const &noeud) {
+        valeur = noeud.valeur;
+        suivants = noeud.suivants;
+    }
+
     T getValeur() const {
         return valeur;
     }
 
-    void setValeur(T pValeur) {
-        Noeud::valeur = pValeur;
+    std::map<Noeud<T>, unsigned int> getSuivants() {
+        return suivants;
     }
 
-    std::map<Noeud<T>, unsigned int> &getSuivants() {
-        return suivants;
+    void setSuivants(const std::map<Noeud<T>, unsigned int> &pSuivants) {
+        Noeud::suivants = pSuivants;
     }
 };
 
@@ -313,8 +370,12 @@ private:
     std::vector<Noeud<T>> noeuds;
 
 public:
-    std::vector<Noeud<T>> &getNoeuds() {
+    std::vector<Noeud<T>> getNoeuds() {
         return noeuds;
+    }
+
+    void setNoeuds(const std::vector<Noeud<T>> &pNoeuds) {
+        Graphe::noeuds = pNoeuds;
     }
 
     // Renvoie le chemin entre debut et fin
@@ -366,7 +427,46 @@ public:
             resultat.push_back(n);
             n = pred[n];
         }
+        resultat.push_back(debut);
+        std::reverse(resultat.begin(), resultat.end());
+
         return resultat;
     }
 };
+
+template<typename T>
+std::ostream &operator<<(std::ostream &flux, Noeud<T> n) {
+    flux << n.getValeur();
+    return flux;
+}
+
+template<typename T>
+bool operator==(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() == n2.getValeur();
+}
+
+template<typename T>
+bool operator!=(Noeud<T> n1, Noeud<T> n2) {
+    return !(n1 == n2);
+}
+
+template<typename T>
+bool operator<(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() < n2.getValeur();
+}
+
+template<typename T>
+bool operator>(Noeud<T> n1, Noeud<T> n2) {
+    return n1.getValeur() > n2.getValeur();
+}
+
+template<typename T>
+bool operator<=(Noeud<T> n1, Noeud<T> n2) {
+    return (n1 == n2) || (n1 < n2);
+}
+
+template<typename T>
+bool operator>=(Noeud<T> n1, Noeud<T> n2) {
+    return (n1 == n2) || (n1 > n2);
+}
 ```
