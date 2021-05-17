@@ -13,12 +13,12 @@ début
     # 1 {t[j] >= t[i] >= t[(i+j)/2] v t[j] <= t[i] <= t[(i+j)/2]}
     tantque l <= k faire
         tantque t[k] > t[i] et l <= k faire
-            # 2 {∀e ϵ [k + 1, j] ; t[e] > t[i]}
+            # 2 {∀ e ϵ ]k, j] ; t[e] > t[i]}
             k := k - 1;
         fintantque;
 
         tantque t[l] <= t[i] et l <= k faire
-            # 3 {∀e ϵ [l-1, j] ; t[e] <= t[i]}
+            # 3 {∀ a ϵ [i, l[ ; t[a] <= t[i]}
             l := l + 1;
         fintantque;
 
@@ -27,11 +27,11 @@ début
             l := l + 1;
             k := k - 1;
         finsi;
-        # 4 {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i]}
+        # 4 {∀ e ϵ ]k, j] ; ∀ a ϵ [i, l[ ; t[e] > t[i] ^ t[a] <= t[i]}
     fintantque;
-    # 5 {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
+    # 5 {∀ e ϵ ]k, j] ; ∀ a ϵ [i, l[ ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
     permuter(t[i], t[k])
-    # 6 {∀e ϵ [i, k] ; ∀a ϵ [k, j] ; t[e] <= t[k] ^ t[a] >= t[k]}
+    # 6 {∀ e ϵ [i, k] ; ∀ a ϵ [k, j] ; t[e] <= t[k] ^ t[a] >= t[k]}
 fin;
 ```
 
@@ -52,7 +52,7 @@ void permuter(T &a, T &b) {
 }
 
 template<typename T>
-unsigned int indiceMedian(std::vector<T> &t, unsigned int x, unsigned int y, unsigned int z) {
+unsigned int indiceMedian(std::vector<T> &t, int x, int y, int z) {
     if ((t[x] <= t[y] && t[x] >= t[z]) || (t[x] >= t[y] && t[x] <= t[z])) {
         return x;
     } else if ((t[y] <= t[x] and t[y] >= t[z]) or (t[y] >= t[x] and t[y] <= t[z])) {
@@ -63,11 +63,10 @@ unsigned int indiceMedian(std::vector<T> &t, unsigned int x, unsigned int y, uns
 }
 
 template<typename T>
-void partition(std::vector<T> &t, unsigned int i, unsigned int j) {
-    int m = indiceMedian(t, i, j, int((i + j) / 2));
+void partition(std::vector<T> &t, int i, int j, int m) {
     permuter(t[i], t[m]);
-    unsigned int l = i++;
-    unsigned int k = j;
+    int l = i + 1;
+    int k = j;
 
     // ===== Assertion 1
     // {t[j] >= t[i] >= t[(i+j)/2] v t[j] <= t[i] <= t[(i+j)/2]}
@@ -76,20 +75,22 @@ void partition(std::vector<T> &t, unsigned int i, unsigned int j) {
     // =====
 
     while (l <= k) {
-        while (l <= k and t[k] > t[i]) {
+        while (l <= k && t[k] > t[i]) {
             // ===== Assertion 2
-            // {∀e ϵ [k+1, j] ; t[e] > t[i]}
-            for (unsigned int e = k + 1; e < j; ++e)
+            // {∀ e ϵ ]k, j] ; t[e] > t[i]}
+            for (int e = k + 1; e <= j; ++e) {
                 assert(t[e] > t[i]);
+            }
             // =====
             k--;
         }
 
-        while (l <= k and t[l] <= t[i]) {
+        while (l <= k && t[l] <= t[i]) {
             // ===== Assertion 3
-            // {∀e ϵ [l-1, j] ; t[e] <= t[i]}
-            for (unsigned int e = l - 1; e < j; ++e)
-                assert(t[e] <= t[i]);
+            // {∀ a ϵ [i, l[ ; t[a] <= t[i]}
+            for (int a = i; a < l; ++a) {
+                assert(t[a] <= t[i]);
+            }
             // =====
             l++;
         }
@@ -100,30 +101,33 @@ void partition(std::vector<T> &t, unsigned int i, unsigned int j) {
             k--;
         }
         // ===== Assertion 4
-        // {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i]}
-        for (unsigned int e = k; e < j; ++e)
+        // {∀ e ϵ ]k, j] ; ∀ a ϵ [i, l[ ; t[e] > t[i] ^ t[a] <= t[i]}
+        for (int e = k + 1; e <= j; ++e) {
             assert(t[e] > t[i]);
-        for (unsigned int a = i; a < l; ++a)
+        }
+        for (int a = i; a < l; ++a) {
             assert(t[a] <= t[i]);
+        }
         // =====
     }
     // ===== Assertion 5
-    // {∀e ϵ [k, j] ; ∀a ϵ [i, l] ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
-    if (l > k) {
-        for (unsigned int e = k; e < j; ++e)
-            assert(t[e] > t[i]);
-        for (unsigned int a = i; a < l; ++a)
-            assert(t[a] <= t[i]);
+    // {∀ e ϵ ]k, j] ; ∀ a ϵ [i, l[ ; t[e] > t[i] ^ t[a] <= t[i] ^ l > k}
+    assert(l > k);
+    for (int e = k + 1; e <= j; ++e) {
+        assert(t[e] > t[i]);
+    }
+    for (int a = i; a < l; ++a) {
+        assert(t[a] <= t[i]);
     }
     // =====
 
     permuter(t[i], t[k]);
     // ===== Assertion 6
-    // {∀e ϵ [i, k] ; ∀a ϵ [k, j] ; t[e] <= t[k] ^ t[a] >= t[k]}
-    for (unsigned int e = i; e < k; e++) {
+    // {∀ e ϵ [i, k] ; ∀ a ϵ [k, j] ; t[e] <= t[k] ^ t[a] >= t[k]}
+    for (int e = i; e <= k; e++) {
         assert(t[e] <= t[k]);
     }
-    for (unsigned int a = k; a < j; a++) {
+    for (int a = k; a <= j; a++) {
         assert(t[a] >= t[k]);
     }
     // =====
